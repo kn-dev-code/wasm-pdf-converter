@@ -6,7 +6,6 @@ export interface UserDocument extends Document {
   name: string;
   email?: string;
   password?: string;
-  file?: string | null;
   createdAt: Date;
   updatedAt: Date;
   comparePassword(value: string): Promise<boolean>;
@@ -27,7 +26,6 @@ type: String,
 required: true,
 select: false,
     },
-    file: {type: String, default: null}
   },
   {
     timestamps: true,

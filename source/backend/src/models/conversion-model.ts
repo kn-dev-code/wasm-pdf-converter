@@ -4,11 +4,11 @@ import mongoose, { Document, Schema } from "mongoose";
 export interface ConversionDocument extends Document {
   userId: mongoose.Types.ObjectId,
   fileName: string;
+  file?: string | null;
   originalSize: number;
   operation: "merge" | "combine" | "compress" | "to-pdf";
-  status: "success" | "failed";
+  status: "success" | "failed" | "pending";
 }
-
 
 const conversionSchema = new Schema<ConversionDocument>(
   {
@@ -20,9 +20,12 @@ const conversionSchema = new Schema<ConversionDocument>(
       enum: ["merge", "combine", "compress", "to-pdf"],
       required: true,
     },
+    file: {
+      type: String, default: null
+    },
     status: {
       type: String,
-      enum: ["success", "failed"],
+      enum: ["success", "failed", "pending"],
       default: "success",
       required: true,
     },

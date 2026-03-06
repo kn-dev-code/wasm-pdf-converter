@@ -1,0 +1,59 @@
+import {Request, Response} from "express";
+import { asyncHandler } from "../middlewares/async-handler";
+import { loginSchema, registerSchema } from "../validators/auth-validators";
+import UserModel from "../models/user-model";
+import { clearJWTCookie, setJWTAuthCookie } from "../utils/cookie";
+import { HTTPSTATUS } from "../config/http-config";
+import { loginService, registerService } from "../services/auth-services";
+
+
+
+export const registerController = asyncHandler(async(req: Request, res: Response) => {
+  const body = registerSchema.parse(req.body);
+
+ const user = await registerService(body);
+ const userId = user._id.toString();
+
+
+ return setJWTAuthCookie({
+  res, 
+  userId,
+ })
+ .status(HTTPSTATUS.OK)
+ .json({
+  message: "User created & login successfully",
+  user,
+ })
+});
+
+
+export const loginController = asyncHandler(async(req: Request, res: Response) => {
+  const body = loginSchema.parse(req.body);
+  const user = await loginService(body);
+  const userId = user._id.toString();
+  return setJWTAuthCookie({
+    res,
+    userId,
+  })
+.status(HTTPSTATUS.OK)
+.json({
+  message: "User login successfully",
+  user,
+})
+});
+
+
+export const logoutController = asyncHandler(async(req: Request, res: Response) => {
+  return clearJWTCookie(res).status(HTTPSTATUS.OK).json({
+    message: "User logout successfully",
+  })
+})
+
+
+export const authStatus = asyncHandler(async(req: Request, res: Response) => {
+  const user = req.user;
+  return res.status(HTTPSTATUS.OK).json({
+    message: "Authenticated User",
+    user,
+  })
+})
