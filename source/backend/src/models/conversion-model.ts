@@ -2,7 +2,7 @@ import mongoose, { Document, Schema } from "mongoose";
 
 
 export interface ConversionDocument extends Document {
-  userId: mongoose.Types.ObjectId,
+  userId: mongoose.Types.ObjectId;
   fileName: string;
   file?: string | null;
   originalSize: number;

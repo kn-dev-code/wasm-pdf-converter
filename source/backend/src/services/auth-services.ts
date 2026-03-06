@@ -1,10 +1,6 @@
-import { asyncHandler } from "../middlewares/async-handler";
 import UserModel from "../models/user-model";
 import { NotFoundException, UnauthorizedException } from "../utils/app-error";
 import { LoginSchemaType, RegisterSchemaType } from "../validators/auth-validators";
-
-
-
 
 export const registerService = async(body: RegisterSchemaType) => {
 const {email} = body;
@@ -19,7 +15,6 @@ const newUser = new UserModel({
 await newUser.save();
 return newUser;
 }
-
 
 export const loginService = async(body: LoginSchemaType) => {
 const {email, password} = body;

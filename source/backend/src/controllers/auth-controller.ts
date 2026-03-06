@@ -1,7 +1,6 @@
 import {Request, Response} from "express";
 import { asyncHandler } from "../middlewares/async-handler";
 import { loginSchema, registerSchema } from "../validators/auth-validators";
-import UserModel from "../models/user-model";
 import { clearJWTCookie, setJWTAuthCookie } from "../utils/cookie";
 import { HTTPSTATUS } from "../config/http-config";
 import { loginService, registerService } from "../services/auth-services";
@@ -50,7 +49,7 @@ export const logoutController = asyncHandler(async(req: Request, res: Response) 
 })
 
 
-export const authStatus = asyncHandler(async(req: Request, res: Response) => {
+export const authStatusController = asyncHandler(async(req: Request, res: Response) => {
   const user = req.user;
   return res.status(HTTPSTATUS.OK).json({
     message: "Authenticated User",
