@@ -1,4 +1,4 @@
-import mongoose, {Document, Schema} from "mongoose"
+import mongoose, { Document, Schema } from "mongoose"
 import { compareValue, hashValue } from "../utils/bcrypt";
 
 
@@ -8,12 +8,13 @@ export interface UserDocument extends Document {
   password?: string;
   createdAt: Date;
   updatedAt: Date;
+  planType: "free" | "pro" | "premium";
   comparePassword(value: string): Promise<boolean>;
 }
 
 const userSchema = new Schema<UserDocument>(
   {
-    name: {type: String, required: true},
+    name: { type: String, required: true },
     email: {
       type: String,
       required: true,
@@ -22,10 +23,15 @@ const userSchema = new Schema<UserDocument>(
       lowercase: true,
     },
     password: {
-type: String,
-required: true,
-select: false,
+      type: String,
+      required: true,
+      select: false,
     },
+    planType: {
+      type: String,
+      enum: ["free", "pro", "premium"],
+      default: "free",
+    }
   },
   {
     timestamps: true,
@@ -38,8 +44,8 @@ select: false,
       },
     },
   }
-);{
-  
+); {
+
 }
 
 userSchema.pre("save", async function (next) {
@@ -48,7 +54,7 @@ userSchema.pre("save", async function (next) {
   }
 })
 
-userSchema.methods.comparePassword = async function(val:string) {
+userSchema.methods.comparePassword = async function (val: string) {
   return compareValue(val, this.password)
 }
 

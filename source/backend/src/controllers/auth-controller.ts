@@ -4,6 +4,7 @@ import { loginSchema, registerSchema } from "../validators/auth-validators";
 import { clearJWTCookie, setJWTAuthCookie } from "../utils/cookie";
 import { HTTPSTATUS } from "../config/http-config";
 import { loginService, registerService } from "../services/auth-services";
+import { NotFoundException } from "../utils/app-error";
 
 
 
@@ -51,8 +52,21 @@ export const logoutController = asyncHandler(async(req: Request, res: Response) 
 
 export const authStatusController = asyncHandler(async(req: Request, res: Response) => {
   const user = req.user;
+
+  if (!user) {
+    return res.status(HTTPSTATUS.UNAUTHORIZED).json({
+      success: false,
+      message: "User not authenticated"
+    })
+  }
   return res.status(HTTPSTATUS.OK).json({
+    success: true,
     message: "Authenticated User",
-    user,
+    data: {
+      _id: user?._id,
+      email: user?.email,
+      createdAt: user?.createdAt,
+      planType: user?.planType,
+    }
   })
 })

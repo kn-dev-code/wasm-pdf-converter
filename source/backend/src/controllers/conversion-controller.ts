@@ -5,25 +5,21 @@ import ConversionModel from "../models/conversion-model";
 import { NotFoundException, UnauthorizedException } from "../utils/app-error";
 import mongoose from "mongoose";
 import { HTTPSTATUS } from "../config/http-config";
+import { createConversionService } from "../services/conversion-services";
 
 
 
 export const createConversion = asyncHandler(async(req: Request, res: Response) => {
-const validatedConversion = conversionSchema.parse(req.body);
-const userId = req.user?._id;
+  const validatedData = conversionSchema.parse(req.body);
+  if (!req.user) throw new UnauthorizedException("User not logged in");
+  const newFile = await createConversionService(validatedData, req.user);
 
-if (!userId) throw new UnauthorizedException("User not logged in");
-
-const newFile = await ConversionModel.create({
-  ...validatedConversion,
-  userId: new mongoose.Types.ObjectId(userId),
-})
-return res.status(HTTPSTATUS.CREATED).json({
-  success: true,
-  message: "File conversion successfully created",
-  data: newFile,
-})
-})
+  return res.status(HTTPSTATUS.CREATED).json({
+    success: true,
+    message: "File conversion successfully created",
+    data: newFile,
+  });
+});
 
 
 export const readAllConversions = asyncHandler(async(req: Request, res: Response) => {

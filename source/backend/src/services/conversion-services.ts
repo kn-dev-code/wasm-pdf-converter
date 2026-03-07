@@ -1,23 +1,20 @@
-import { Request, Response } from "express";
-import { ConversionSchemaType } from "../validators/conversion-validators";
 import ConversionModel from "../models/conversion-model";
-import { HTTPSTATUS } from "../config/http-config";
-import { ForbiddenException, InternalServerException, NotFoundException } from "../utils/app-error";
+import UserModel from "../models/user-model";
+import { ForbiddenException, InternalServerException, NotFoundException} from "../utils/app-error";
 
 
 
-export const createConversionService = async (data: any, userId: string) => {
-  try {
-    const fileNum = await ConversionModel.countDocuments({userId});
-   if (fileNum >= 50) {
-    throw new ForbiddenException("Limit reached: You can only store 50 conversion records.")
-   }
-    const newConversion = await ConversionModel.create({
-      ...data,
-      userId,
-    })
-    return newConversion;
-  } catch (e) {
-    throw new InternalServerException("Internal Server Error");
+export const createConversionService = async (data: any, user: any) => {
+  const fileNum = await ConversionModel.countDocuments({ userId: user._id });
+
+  const limit = user.planType === 'pro' ? 500 : 50;
+
+  if (fileNum >= limit) {
+    throw new ForbiddenException(`Limit reached for ${user.planType} plan.`);
   }
-}
+
+  return await ConversionModel.create({
+    ...data,
+    userId: user._id,
+  });
+};
