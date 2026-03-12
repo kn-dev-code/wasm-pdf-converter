@@ -18,7 +18,7 @@ return newUser;
 
 export const loginService = async(body: LoginSchemaType) => {
 const {email, password} = body;
-const user = await UserModel.findOne({email})
+const user = await UserModel.findOne({email}).select("+password");
 if (!user) throw new NotFoundException("Email or password not found");
 
 const isPasswordValid = await user.comparePassword(password);

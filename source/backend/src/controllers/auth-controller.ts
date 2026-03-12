@@ -56,7 +56,7 @@ export const authStatusController = asyncHandler(async(req: Request, res: Respon
   if (!user) {
     return res.status(HTTPSTATUS.UNAUTHORIZED).json({
       success: false,
-      message: "User not authenticated"
+      message: "User not authenticated",
     })
   }
   return res.status(HTTPSTATUS.OK).json({

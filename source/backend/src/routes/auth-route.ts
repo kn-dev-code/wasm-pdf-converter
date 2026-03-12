@@ -1,6 +1,5 @@
 import {Router} from "express"
 import { loginController, registerController, authStatusController, logoutController} from "../controllers/auth-controller"
-import { passportAuthenticateJwt } from "../config/passport-config"
 import { protect } from "../middlewares/auth-middleware";
 
 

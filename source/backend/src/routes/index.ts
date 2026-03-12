@@ -3,9 +3,9 @@ import authRoutes from "./auth-route";
 import conversionRoutes from "./conversion-route";
 
 
-const router = Router();
-router.use("/auth", authRoutes);
-router.use("/convert", conversionRoutes);
+const mainRouter = Router();
+mainRouter.use("/auth", authRoutes);
+mainRouter.use("/convert", conversionRoutes);
 
 
-export default router;
+export default mainRouter;

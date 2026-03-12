@@ -9,11 +9,13 @@ import { errorHandler } from "./middlewares/error-handler";
 import connectDatabase from "./config/database-config";
 import { logger } from "./config/winston-config";
 import passport from "passport";
-import router from "./routes";
+import cookieParser from "cookie-parser";
+import mainRouter from "./routes";
 const app = express();
 const server = http.createServer(app)
 
 app.use(express.json({limit: "10mb"}))
+app.use(cookieParser());
 app.use(express.urlencoded({extended: true}))
 app.use(cors({
   origin: Env.FRONTEND_ORIGIN,
@@ -31,7 +33,7 @@ app.get("/health", asyncHandler(async (req: Request, res: Response) => {
   })
 }))
 
-app.use("/api", router);
+app.use("/api", mainRouter);
 
 
 app.use(errorHandler);
