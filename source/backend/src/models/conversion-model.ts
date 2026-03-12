@@ -6,7 +6,7 @@ export interface ConversionDocument extends Document {
   fileName: string;
   file?: string | null;
   originalSize: number;
-  operation: "merge" | "combine" | "compress" | "to-pdf";
+  operation: "merge" | "combine" | "compress" | "split" | "to-pdf";
   status: "success" | "failed" | "pending";
 }
 
@@ -17,7 +17,7 @@ const conversionSchema = new Schema<ConversionDocument>(
     originalSize: { type: Number, required: true },
     operation: {
       type: String,
-      enum: ["merge", "combine", "compress", "to-pdf"],
+      enum: ["merge", "combine", "split", "compress", "to-pdf"],
       required: true,
     },
     file: {
