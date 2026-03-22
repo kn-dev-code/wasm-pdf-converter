@@ -1,8 +1,8 @@
-import React from 'react'
+
 
 const Dashboard = () => {
   return (
-    <div>
+    <div className = "bg-[#505252]">
       
     </div>
   )
