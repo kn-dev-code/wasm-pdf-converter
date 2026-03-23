@@ -4,7 +4,7 @@ import { Button } from "./ui/button";
 const NavBar = () => {
   return (
     <nav>
-      <div className="flex flex-row justify-around gap-15 h-15 bg-[#8F8B8B] items-center px-20 pl-30">
+      <div className="flex flex-row justify-around gap-15 h-15 bg-[#8F8B8B] items-center px-20 pl-30 border-2 border-white">
         <h1 className="text-white font-bold text-3xl">BlinkFlow</h1>
         <Link className="text-white font-bold text-[17px]" to="/convert/merge">
           MERGE PDF
