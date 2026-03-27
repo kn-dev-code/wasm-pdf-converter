@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useState } from "react";
 import { toast } from "sonner";
+import init, { process_files } from "../../wasm/pkg/wasm_engine.js";
 const ToolPage = () => {
   const { toolId } = useParams();
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -42,11 +43,40 @@ const ToolPage = () => {
 
     const validFiles = fileArr.filter((file) => {
       const fileName = file.name.toLowerCase();
-      return fileName.endsWith(currentTool.acceptedTypes);
+      return currentTool.acceptedTypes
+        .split(", ")
+        .some((ext) => fileName.endsWith(ext));
     });
 
     setSelectedFiles(validFiles);
     toast.success("File transfer successful!");
+  };
+
+
+  const startConversion = async () => {
+    if (selectedFiles.length === 0) toast.error("No files were requested...");
+
+   const toastId = toast.loading("Processing file utilities...");
+
+    try {
+      await init();
+      
+          const arrayBuffer = await selectedFiles[0].arrayBuffer();
+          const uint8 = new Uint8Array(arrayBuffer);
+      
+      toast.loading("Processing bits into Rust....", {id: toastId})
+      const processedBits = process_files(uint8);
+
+      const blob = new Blob([processedBits as BlobPart], {type: "application/pdf"});
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `blinkflow-processed.pdf`;
+      link.click();
+    } catch (e) {
+      console.error("WASM Bridge Error: ", e);
+      toast.error("Engine failure. Please try again...", {id: toastId})
+    }
   };
 
   return (
@@ -60,7 +90,7 @@ const ToolPage = () => {
 
       <div className="w-full max-w-4xl aspect-video bg-[#606262] border-4 border-dashed border-white/20 rounded-3xl flex flex-col items-center justify-center hover:border-green-400 transition-colors cursor-pointer group">
         <input
-          className="cursor-pointer top-65 rounded-3xl absolute p-59 w-4xl flex flex-col justify-center items-center file:hidden text-[#606262] border-3 border-black"
+          className="cursor-pointer top-65 rounded-3xl absolute p-59 w-4xl flex flex-col justify-center items-center file:hidden text-[#606262]"
           onChange={handleFileInput}
           type="file"
         />
@@ -73,7 +103,7 @@ const ToolPage = () => {
         <p className="text-sm text-white/50 mt-2">Maximum file size: 50MB</p>
       </div>
 
-      <button className="mt-10 px-10 py-4 bg-green-500 hover:bg-green-600 text-black font-bold rounded-full transition-all shadow-lg">
+      <button onClick = {startConversion} className="cursor-pointer mt-10 px-10 py-4 bg-green-500 hover:bg-green-600 text-black font-bold rounded-full transition-all shadow-lg">
         START CONVERSION
       </button>
     </div>
