@@ -67,7 +67,7 @@ const ToolPage = () => {
       toast.error("No files were requested...");
       return;
     }
-    const toastId = toast.loading("Processing file utilities...");
+    const toastId = toast.loading("Initializing engine...");
 
     if (selectedFiles.length > currentTool.maxFiles) {
       toast.error(`Max files reached: Only ${currentTool.maxFiles} allowed.`);
@@ -79,9 +79,10 @@ const ToolPage = () => {
       const fileName = file.name;
       const arrayBuffer = await selectedFiles[0].arrayBuffer();
       const uint8 = new Uint8Array(arrayBuffer);
+      const operationType = toolId || "merge";
 
       toast.loading("Processing bits into Rust....", { id: toastId });
-      const processedBits = process_files(uint8);
+      const processedBits = process_files(uint8, operationType);
 
       const blob = new Blob([processedBits as BlobPart], {
         type: "application/pdf",
