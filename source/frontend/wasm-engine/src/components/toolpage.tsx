@@ -2,36 +2,46 @@ import { useParams } from "react-router-dom";
 import { useState } from "react";
 import { toast } from "sonner";
 import init, { process_files } from "../../wasm/pkg/wasm_engine.js";
+import { useAuth } from "../hooks/use-auth.js";
+import { saveToDatabase } from "../services/history.js";
+
 const ToolPage = () => {
   const { toolId } = useParams();
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-
+  const { user } = useAuth();
   const toolConfig = {
     merge: {
-      title: "Merge PDF",
+      title: "merge",
       acceptedTypes: ".pdf",
       maxFiles: 10,
-      description: "Combine multiple PDFs into one document",
+      description: "Merge multiple PDFs into one document",
+    },
+    compress: {
+      title: "compress",
+      acceptedTypes: ".pdf",
+      maxFiles: 10,
+      description: "Reduce the file-size while ensuring high quality format.",
     },
     combine: {
-      title: "Combine PDF",
+      title: "combine",
       acceptedTypes: ".pdf",
       maxFiles: 10,
       description: "Combine more than two PDFs into one document",
     },
     split: {
-      title: "Split-PDF",
+      title: "split",
       acceptedTypes: ".pdf",
       maxFiles: 10,
       description: "Set pdfs in seperate files",
     },
     "to-pdf": {
-      title: "To-PDF",
+      title: "to-pdf",
       acceptedTypes: ".docx, .jpg, .png",
       maxFiles: 10,
       description: "Convert any file format into one PDF document",
     },
   };
+
   const currentTool = toolConfig[toolId as keyof typeof toolConfig];
 
   const handleFileInput = (e: any) => {
@@ -52,30 +62,51 @@ const ToolPage = () => {
     toast.success("File transfer successful!");
   };
 
-
   const startConversion = async () => {
-    if (selectedFiles.length === 0) toast.error("No files were requested...");
+    if (selectedFiles.length === 0) {
+      toast.error("No files were requested...");
+      return;
+    }
+    const toastId = toast.loading("Processing file utilities...");
 
-   const toastId = toast.loading("Processing file utilities...");
-
+    if (selectedFiles.length > currentTool.maxFiles) {
+      toast.error(`Max files reached: Only ${currentTool.maxFiles} allowed.`);
+      return;
+    }
     try {
       await init();
-      
-          const arrayBuffer = await selectedFiles[0].arrayBuffer();
-          const uint8 = new Uint8Array(arrayBuffer);
-      
-      toast.loading("Processing bits into Rust....", {id: toastId})
+      const file = selectedFiles[0];
+      const fileName = file.name;
+      const arrayBuffer = await selectedFiles[0].arrayBuffer();
+      const uint8 = new Uint8Array(arrayBuffer);
+
+      toast.loading("Processing bits into Rust....", { id: toastId });
       const processedBits = process_files(uint8);
 
-      const blob = new Blob([processedBits as BlobPart], {type: "application/pdf"});
+      const blob = new Blob([processedBits as BlobPart], {
+        type: "application/pdf",
+      });
       const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
-      link.download = `blinkflow-processed.pdf`;
+      link.download = `blinkflow_${fileName}`;
+      document.body.appendChild(link);
       link.click();
+      document.body.removeChild(link);
+
+      if (user) {
+        await saveToDatabase({
+          fileName: selectedFiles[0].name,
+          originalSize: selectedFiles[0].size,
+          operation: currentTool.title,
+          status: "success",
+        });
+      }
+      URL.revokeObjectURL(url);
+      toast.success("File processed successfully!", { id: toastId });
     } catch (e) {
       console.error("WASM Bridge Error: ", e);
-      toast.error("Engine failure. Please try again...", {id: toastId})
+      toast.error("Engine failure. Please try again...", { id: toastId });
     }
   };
 
@@ -93,6 +124,7 @@ const ToolPage = () => {
           className="cursor-pointer top-65 rounded-3xl absolute p-59 w-4xl flex flex-col justify-center items-center file:hidden text-[#606262]"
           onChange={handleFileInput}
           type="file"
+          multiple
         />
         <div className="text-6xl mb-4 group-hover:scale-110 transition-transform">
           📂
@@ -103,7 +135,10 @@ const ToolPage = () => {
         <p className="text-sm text-white/50 mt-2">Maximum file size: 50MB</p>
       </div>
 
-      <button onClick = {startConversion} className="cursor-pointer mt-10 px-10 py-4 bg-green-500 hover:bg-green-600 text-black font-bold rounded-full transition-all shadow-lg">
+      <button
+        onClick={startConversion}
+        className="cursor-pointer mt-10 px-10 py-4 bg-green-500 hover:bg-green-600 text-black font-bold rounded-full transition-all shadow-lg"
+      >
         START CONVERSION
       </button>
     </div>
