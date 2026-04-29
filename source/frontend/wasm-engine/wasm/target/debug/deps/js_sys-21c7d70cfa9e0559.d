@@ -1,0 +1,10 @@
+/Users/kylenetterville/pdf-converter-app/source/frontend/wasm-engine/wasm/target/debug/deps/js_sys-21c7d70cfa9e0559.d: /Users/kylenetterville/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/js-sys-0.3.97/src/lib.rs /Users/kylenetterville/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/js-sys-0.3.97/src/futures/mod.rs /Users/kylenetterville/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/js-sys-0.3.97/src/futures/queue.rs /Users/kylenetterville/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/js-sys-0.3.97/src/futures/task/singlethread.rs
+
+/Users/kylenetterville/pdf-converter-app/source/frontend/wasm-engine/wasm/target/debug/deps/libjs_sys-21c7d70cfa9e0559.rlib: /Users/kylenetterville/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/js-sys-0.3.97/src/lib.rs /Users/kylenetterville/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/js-sys-0.3.97/src/futures/mod.rs /Users/kylenetterville/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/js-sys-0.3.97/src/futures/queue.rs /Users/kylenetterville/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/js-sys-0.3.97/src/futures/task/singlethread.rs
+
+/Users/kylenetterville/pdf-converter-app/source/frontend/wasm-engine/wasm/target/debug/deps/libjs_sys-21c7d70cfa9e0559.rmeta: /Users/kylenetterville/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/js-sys-0.3.97/src/lib.rs /Users/kylenetterville/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/js-sys-0.3.97/src/futures/mod.rs /Users/kylenetterville/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/js-sys-0.3.97/src/futures/queue.rs /Users/kylenetterville/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/js-sys-0.3.97/src/futures/task/singlethread.rs
+
+/Users/kylenetterville/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/js-sys-0.3.97/src/lib.rs:
+/Users/kylenetterville/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/js-sys-0.3.97/src/futures/mod.rs:
+/Users/kylenetterville/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/js-sys-0.3.97/src/futures/queue.rs:
+/Users/kylenetterville/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/js-sys-0.3.97/src/futures/task/singlethread.rs:

@@ -60,8 +60,8 @@ const ToolPage = () => {
       const fileName = file.name.toLowerCase();
 
       return currentTool.acceptedTypes
-      .split(", ")
-      .some((ext) => fileName.endsWith(ext));
+        .split(", ")
+        .some((ext) => fileName.endsWith(ext));
     });
 
     setSelectedFiles(validFiles);
@@ -72,40 +72,42 @@ const ToolPage = () => {
   const startConversion = async () => {
     if (selectedFiles.length === 0) {
       toast.error("No files were requested...");
-
       return;
     }
 
     const toastId = toast.loading("Processing file utilities...");
 
-    if (selectedFiles.length > currentTool.maxFiles) {
-      toast.error(`Max files reached: Only ${currentTool.maxFiles} allowed.`);
-
-      return;
-    }
-
     try {
       await init();
 
-      const file = selectedFiles[0];
-      const fileName = file.name;
-      const arrayBuffer = await selectedFiles[0].arrayBuffer();
-      const uint8 = new Uint8Array(arrayBuffer);
-      const toolId = currentTool.acceptedTypes;
+      const fileBuffers = await Promise.all(
+        selectedFiles.map(async (file) => {
+          const arrayBuffer = await file.arrayBuffer();
+          return new Uint8Array(arrayBuffer);
+        }),
+      );
+
+      const operation = toolId === "to-pdf" ? toolId : `${toolId}-pdf`;
+
       toast.loading("Processing bits into Rust....", { id: toastId });
-      const processedBits = processFiles(uint8, toolId);
+      
+      const processedBits = processFiles(fileBuffers, operation);
 
-      const blob = new Blob([processedBits as BlobPart], {
-        type: "application/pdf",
-      });
+      if (!processedBits || processedBits.length === 0) {
+        throw new Error("Rust engine returned empty data.");
+      }
 
+      const blob = new Blob([processedBits as any], { type: "application/pdf" });
       const url = URL.createObjectURL(blob);
+      
       const link = document.createElement("a");
       link.href = url;
-      link.download = `blinkflow_${fileName}`;
+      link.download = selectedFiles.length > 1 
+        ? `blinkflow_processed.pdf` 
+        : `blinkflow_${selectedFiles[0].name.split(".")[0]}.pdf`;
+
       document.body.appendChild(link);
       link.click();
-
       document.body.removeChild(link);
 
       if (user) {
@@ -121,7 +123,7 @@ const ToolPage = () => {
       toast.success("File processed successfully!", { id: toastId });
     } catch (e) {
       console.error("WASM Bridge Error: ", e);
-      toast.error("Engine failure. Please try again...", { id: toastId });
+      toast.error("Engine failure. Check console for details.", { id: toastId });
     }
   };
 
