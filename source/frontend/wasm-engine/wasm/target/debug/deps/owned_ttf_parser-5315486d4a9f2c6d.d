@@ -1,0 +1,8 @@
+/Users/kylenetterville/pdf-converter-app/source/frontend/wasm-engine/wasm/target/debug/deps/owned_ttf_parser-5315486d4a9f2c6d.d: /Users/kylenetterville/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/owned_ttf_parser-0.19.0/src/lib.rs /Users/kylenetterville/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/owned_ttf_parser-0.19.0/src/convert.rs /Users/kylenetterville/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/owned_ttf_parser-0.19.0/src/owned.rs /Users/kylenetterville/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/owned_ttf_parser-0.19.0/src/preparse.rs
+
+/Users/kylenetterville/pdf-converter-app/source/frontend/wasm-engine/wasm/target/debug/deps/libowned_ttf_parser-5315486d4a9f2c6d.rmeta: /Users/kylenetterville/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/owned_ttf_parser-0.19.0/src/lib.rs /Users/kylenetterville/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/owned_ttf_parser-0.19.0/src/convert.rs /Users/kylenetterville/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/owned_ttf_parser-0.19.0/src/owned.rs /Users/kylenetterville/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/owned_ttf_parser-0.19.0/src/preparse.rs
+
+/Users/kylenetterville/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/owned_ttf_parser-0.19.0/src/lib.rs:
+/Users/kylenetterville/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/owned_ttf_parser-0.19.0/src/convert.rs:
+/Users/kylenetterville/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/owned_ttf_parser-0.19.0/src/owned.rs:
+/Users/kylenetterville/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/owned_ttf_parser-0.19.0/src/preparse.rs:
