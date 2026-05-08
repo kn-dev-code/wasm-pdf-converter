@@ -1,0 +1,3 @@
+Object: From<fn(i64) -> Object {Integer}>
+From<chrono::datetime::DateTime<chrono::offset::local::Local>>
+From<chrono::datetime::DateTime<chrono::offset::utc::Utc>>

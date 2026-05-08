@@ -97,7 +97,7 @@ const ToolPage = () => {
         throw new Error("Rust engine returned empty data.");
       }
 
-      const blob = new Blob([processedBits as any], { type: "application/pdf" });
+      const blob = new Blob([new Uint8Array(processedBits)], { type: "application/pdf" });
       const url = URL.createObjectURL(blob);
       
       const link = document.createElement("a");

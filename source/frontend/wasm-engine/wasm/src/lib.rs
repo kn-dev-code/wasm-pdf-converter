@@ -1,8 +1,6 @@
 use wasm_bindgen::prelude::*;
 use serde_wasm_bindgen::from_value;
-use printpdf::*;
-use image_crate::imageops::FilterType;
-use image_crate::GenericImageView;
+use lopdf::{Document, Object, Dictionary};
 
 #[wasm_bindgen(js_name = processFiles)]
 pub fn process_files(data: JsValue, operation: &str) -> Vec<u8> {
@@ -19,95 +17,75 @@ pub fn process_files(data: JsValue, operation: &str) -> Vec<u8> {
             let (first_half, _) = files.split_at(mid);
             merge_files_internal(&first_half.to_vec())
         }
-        "compress-pdf" => compress_pdf_internal(&files[0]),
+        "compress-pdf" => compress_files_internal(&files[0]),
         _ => Vec::new(),
     }
 }
 
-fn merge_files_internal(files: &Vec<Vec<u8>>) -> Vec<u8> {
-    let (doc, page1, layer1) = PdfDocument::new(
-        "Blinkflow Document",
-        Mm(210.0),
-        Mm(297.0),
-        "Layer 1"
-    );
-
-    for (index, data) in files.iter().enumerate() {
-        let current_layer = if index == 0 {
-            doc.get_page(page1).get_layer(layer1)
-        } else {
-            let (p, l) = doc.add_page(Mm(210.0), Mm(297.0), format!("Layer {}", index));
-            doc.get_page(p).get_layer(l)
-        };
-
-        if let Ok(dynamic_img) = image_crate::load_from_memory(data) {
-            let rgba_img = dynamic_img.to_rgba8();
-            let (width, height) = rgba_img.dimensions();
-
-            let image_x_object = ImageXObject {
-                width: Px(width as usize),
-                height: Px(height as usize),
-                color_space: ColorSpace::Rgba,
-                bits_per_component: ColorBits::Bit8,
-                interpolate: true,
-                image_data: rgba_img.into_raw(),
-                clipping_bbox: None,
-                image_filter: None,
-            };
-            let transform = ImageTransform {
-                translate_x: Some(Mm(0.0)),
-                translate_y: Some(Mm(0.0)),
-                rotate: None,
-                scale_x: Some(0.5),
-                scale_y: Some(0.5),
-                dpi: Some(300.0),
-            };
-
-            Image::from(image_x_object).add_to_layer(current_layer, transform);
+fn compress_files_internal(data: &[u8]) -> Vec<u8> {
+    if let Ok(mut doc) = Document::load_mem(data) {
+        doc.compress();
+        let mut out = Vec::new();
+        if doc.save_to(&mut out).is_ok() {
+            return out;
         }
     }
-    doc.save_to_bytes().unwrap()
+    data.to_vec()
+}
+
+fn merge_files_internal(files: &Vec<Vec<u8>>) -> Vec<u8> {
+    let mut target_doc = Document::with_version("1.5");
+    let mut page_nodes = Vec::new();
+    let mut max_id = 1;
+
+    for data in files {
+        if let Ok(mut source_doc) = Document::load_mem(data) {
+            source_doc.renumber_objects_with(max_id);
+            
+            let pages = source_doc.get_pages();
+            let mut page_indices: Vec<_> = pages.keys().collect();
+            page_indices.sort();
+
+            for &index in page_indices {
+                if let Some(&page_id) = pages.get(&index) {
+                    if let Ok(page_obj) = source_doc.get_object(page_id) {
+                        let new_id = target_doc.add_object(page_obj.clone());
+                        page_nodes.push(Object::Reference(new_id));
+                    }
+                }
+            }
+
+            for (id, object) in source_doc.objects {
+                target_doc.objects.insert(id, object);
+                if id.0 > max_id {
+                    max_id = id.0;
+                }
+            }
+            max_id = target_doc.max_id + 1;
+        }
+    }
+
+    let mut pages_dict = Dictionary::new();
+    pages_dict.set("Type", Object::Name(b"Pages".to_vec()));
+    pages_dict.set("Count", Object::Integer(page_nodes.len() as i64));
+    pages_dict.set("Kids", Object::Array(page_nodes));
+    let pages_root_id = target_doc.add_object(pages_dict);
+    let mut catalog_dict = Dictionary::new();
+    catalog_dict.set("Type", Object::Name(b"Catalog".to_vec()));
+    catalog_dict.set("Pages", Object::Reference(pages_root_id));
+    let catalog_id = target_doc.add_object(catalog_dict);
+
+    target_doc.trailer.set("Root", Object::Reference(catalog_id));
+
+    let mut out = Vec::new();
+    target_doc.save_to(&mut out).unwrap_or_default();
+    out
 }
 
 fn to_pdf_internal(data: &[u8]) -> Vec<u8> {
-    merge_files_internal(&vec![data.to_vec()])
-}
-
-fn compress_pdf_internal(data: &[u8]) -> Vec<u8> {
-    let (doc, page1, layer1) = PdfDocument::new(
-        "Blinkflow: Compressed",
-        Mm(210.0),
-        Mm(297.0),
-        "Layer 1"
-    );
-    let current_layer = doc.get_page(page1).get_layer(layer1);
-
-    if let Ok(dynamic_img) = image_crate::load_from_memory(data) {
-        let (w, h) = dynamic_img.dimensions();
-        let resized = dynamic_img.resize(w / 2, h / 2, FilterType::Lanczos3);
-        let (new_w, new_h) = resized.dimensions();
-        let rgba_data = resized.to_rgba8().into_raw();
-
-        let image_x_object = ImageXObject {
-            width: Px(new_w as usize),
-            height: Px(new_h as usize),
-            color_space: ColorSpace::Rgba,
-            bits_per_component: ColorBits::Bit8,
-            interpolate: true,
-            image_data: rgba_data,
-            clipping_bbox: None,
-            image_filter: None,
-        };
-        let transform = ImageTransform {
-            translate_x: Some(Mm(0.0)),
-            translate_y: Some(Mm(0.0)),
-            rotate: None,
-            scale_x: Some(0.5), 
-            scale_y: Some(0.5),
-            dpi: Some(300.0), 
-        };
-
-        Image::from(image_x_object).add_to_layer(current_layer, transform);
+    if data.starts_with(b"%PDF") {
+        return data.to_vec();
     }
-    doc.save_to_bytes().unwrap()
+
+    merge_files_internal(&vec![data.to_vec()])
 }

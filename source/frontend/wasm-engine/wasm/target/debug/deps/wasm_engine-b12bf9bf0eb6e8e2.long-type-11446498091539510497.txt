@@ -1,0 +1,4 @@
+fn(Vec<u8>) -> Object {printpdf::lopdf::Object::Name}
+Object: From<fn(Vec<u8>) -> Object {printpdf::lopdf::Object::Name}>
+From<chrono::datetime::DateTime<chrono::offset::local::Local>>
+From<chrono::datetime::DateTime<chrono::offset::utc::Utc>>
